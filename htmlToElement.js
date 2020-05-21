@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import htmlparser from 'htmlparser2-without-node-native';
 import entities from 'entities';
 
@@ -123,6 +123,13 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
           }
         }
 
+
+        let {NodeComponent, styles} = opts;
+
+        if (node.name === 'ul') {
+          NodeComponent = React.Fragment;
+        }
+
         let listItemPrefix = null;
         if (node.name === 'li') {
           const defaultStyle = opts.textComponentProps ? opts.textComponentProps.style : null;
@@ -140,9 +147,23 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
           if (opts.addLineBreaks && index < list.length - 1) {
             linebreakAfter = opts.lineBreak;
           }
-        }
 
-        const {NodeComponent, styles} = opts;
+          return (
+            <View
+              style={{ flex: 1, paddingLeft: 16, flexDirection: 'row', marginBottom: 8 }}
+              key={index}
+              onPress={linkPressHandler}
+              onLongPress={linkLongPressHandler}
+            >
+              <TextComponent>{linebreakBefore}</TextComponent>
+              {listItemPrefix}
+              <TextComponent>
+                {domToElement(node.children, node)}
+                {linebreakAfter}
+              </TextComponent>
+            </View>
+          );
+        }
 
         return (
           <NodeComponent
@@ -155,7 +176,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
             {linebreakBefore}
             {listItemPrefix}
             {domToElement(node.children, node)}
-            {linebreakAfter}
+            <TextComponent>{linebreakAfter}</TextComponent>
           </NodeComponent>
         );
       }
