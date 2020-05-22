@@ -27,6 +27,9 @@ export default class AutoSizedImage extends PureComponent {
       return;
     }
     Image.getSize(this.props.source.uri, (w, h) => {
+      if (w > Dimensions.get('window').width * 0.8) {
+        w = Dimensions.get('window').width * 0.8
+      }
       this.setState({width: w, height: h});
     });
   }
@@ -55,6 +58,6 @@ export default class AutoSizedImage extends PureComponent {
       return null;
     }
 
-    return <Image style={style} source={source} />;
+    return <Image resizeMode="contain" style={style} source={source} />;
   }
 }
