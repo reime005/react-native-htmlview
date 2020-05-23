@@ -4,8 +4,6 @@ import {
   Dimensions,
 } from 'react-native';
 
-const {width} = Dimensions.get('window');
-
 const baseStyle = {
   backgroundColor: 'transparent',
 };
@@ -18,6 +16,7 @@ export default class AutoSizedImage extends PureComponent {
       // You must specify a width and height for the image %s
       width: this.props.style.width || 1,
       height: this.props.style.height || 1,
+      dimensions: { window: Dimensions.get("window") }
     };
   }
 
@@ -26,16 +25,27 @@ export default class AutoSizedImage extends PureComponent {
     if (this.props.style.width || this.props.style.height) {
       return;
     }
-    Image.getSize(this.props.source.uri, (w, h) => {
-      if (w > Dimensions.get('window').width * 0.8) {
-        w = Dimensions.get('window').width * 0.8
-      }
-      this.setState({width: w, height: h});
+    Image.getSize(this.props.source.uri, (width, height) => {
+      this.setState({width, height});
     });
+
+    Dimensions.addEventListener("change", this.onChange);
   }
+
+  componentWillUnmount() {
+    Dimensions.removeEventListener("change", this.onChange);
+  }
+
+  onChange = ({ window }) => {
+    this.setState({ dimensions: { window } });
+  };
 
   render() {
     const finalSize = {};
+
+    //TODO: instead of 80 percent, get actual parent view width (without padding/margin)
+    const width = this.state.dimensions.window.width * 0.8;
+
     if (this.state.width > width) {
       finalSize.width = width;
       const ratio = width / this.state.width;
