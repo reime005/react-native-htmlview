@@ -14,8 +14,10 @@ export default class AutoSizedImage extends PureComponent {
     this.state = {
       // set width 1 is for preventing the warning
       // You must specify a width and height for the image %s
-      width: this.props.style.width || 1,
-      height: this.props.style.height || 1,
+      style: {
+        width: this.props.style.width || 1,
+        height: this.props.style.height || 1,
+      },
       dimensions: { window: Dimensions.get("window") }
     };
   }
@@ -26,7 +28,7 @@ export default class AutoSizedImage extends PureComponent {
       return;
     }
     Image.getSize(this.props.source.uri, (width, height) => {
-      this.setState({width, height});
+      this.setState({style:{width, height}});
     });
 
     Dimensions.addEventListener("change", this.onChange);
@@ -46,20 +48,20 @@ export default class AutoSizedImage extends PureComponent {
     //TODO: instead of 80 percent, get actual parent view width (without padding/margin)
     const width = this.state.dimensions.window.width * 0.8;
 
-    if (this.state.width > width) {
+    if (this.state.style.width > width) {
       finalSize.width = width;
-      const ratio = width / this.state.width;
-      finalSize.height = this.state.height * ratio;
+      const ratio = width / this.state.style.width;
+      finalSize.height = this.state.style.height * ratio;
     }
     const style = Object.assign(
       baseStyle,
       this.props.style,
-      this.state,
+      this.state.style,
       finalSize
     );
     let source = {};
     if (!finalSize.width || !finalSize.height) {
-      source = Object.assign(source, this.props.source, this.state);
+      source = Object.assign(source, this.props.source, this.state.style);
     } else {
       source = Object.assign(source, this.props.source, finalSize);
     }
