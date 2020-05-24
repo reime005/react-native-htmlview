@@ -126,7 +126,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
         let {NodeComponent, styles} = opts;
 
-        if (node.name === 'ul') {
+        if (node.name === 'ul' || node.name === 'ol') {
           NodeComponent = React.Fragment;
         }
 
@@ -151,13 +151,12 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
           return (
             <View
               style={{ flex: 1, paddingLeft: 16, flexDirection: 'row', marginBottom: 8 }}
-              key={index}
               onPress={linkPressHandler}
               onLongPress={linkLongPressHandler}
             >
               <TextComponent>{linebreakBefore}</TextComponent>
               {listItemPrefix}
-              <TextComponent>
+              <TextComponent style={{ flex: 1 }}>
                 {domToElement(node.children, node)}
                 {linebreakAfter}
               </TextComponent>
