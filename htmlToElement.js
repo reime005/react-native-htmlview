@@ -56,7 +56,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
     let orderedListCounter = 1;
 
     return dom.map((node, index, list) => {
-      if (renderNode) {
+      if (renderNode && node.type !== 'text') {
         const rendered = renderNode(
           node,
           index,
@@ -69,9 +69,10 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
       const {TextComponent} = opts;
 
-      if (node.type === 'text') {
+      if (node.type === 'text' && !/\n/g.test(node.data)) {
         const defaultStyle = opts.textComponentProps ? opts.textComponentProps.style : null;
         const customStyle = inheritedStyle(parent);
+        console.log(`text:${node.data}\'`);
 
         return (
           <TextComponent
@@ -86,7 +87,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
       if (node.type === 'tag') {
         if (node.name === 'img') {
-          return <Img key={index} attribs={node.attribs} />;
+          return <Img attribs={node.attribs} />;
         }
 
         let linkPressHandler = null;
@@ -150,7 +151,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
           return (
             <View
-              style={{ flex: 1, paddingLeft: 16, flexDirection: 'row', marginBottom: 8 }}
+              style={{ paddingLeft: 16, flexDirection: 'row', marginBottom: 8 }}
               onPress={linkPressHandler}
               onLongPress={linkLongPressHandler}
             >
@@ -158,7 +159,6 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
               {listItemPrefix}
               <TextComponent style={{ flex: 1 }}>
                 {domToElement(node.children, node)}
-                {linebreakAfter}
               </TextComponent>
             </View>
           );
