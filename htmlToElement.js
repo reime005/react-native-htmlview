@@ -42,6 +42,8 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
     ...customOpts,
   };
 
+  let wordCount = 0;
+
   function inheritedStyle(parent) {
     if (!parent) return null;
     const style = StyleSheet.flatten(opts.styles[parent.name]) || {};
@@ -56,6 +58,11 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
     let orderedListCounter = 1;
 
     return dom.map((node, index, list) => {
+      if (typeof node.data === 'string') {
+        const words = node.data.split('').filter(w => /\w/.test(w));
+        wordCount += words.length;
+      }
+
       if (renderNode && node.type !== 'text') {
         const rendered = renderNode(
           node,
@@ -72,7 +79,6 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
       if (node.type === 'text' && !/\n/g.test(node.data)) {
         const defaultStyle = opts.textComponentProps ? opts.textComponentProps.style : null;
         const customStyle = inheritedStyle(parent);
-        console.log(`text:${node.data}\'`);
 
         return (
           <TextComponent
@@ -184,7 +190,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
   const handler = new htmlparser.DomHandler(function(err, dom) {
     if (err) done(err);
-    done(null, domToElement(dom));
+    done(null, domToElement(dom), wordCount);
   });
   const parser = new htmlparser.Parser(handler);
   parser.write(rawHtml);

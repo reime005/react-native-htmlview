@@ -104,9 +104,16 @@ class HtmlView extends PureComponent {
       opts.nodeComponentProps = nodeComponentProps;
     }
 
-    htmlToElement(value, opts, (err, element) => {
+    htmlToElement(value, opts, (err, element, wordCount) => {
       if (err) {
         onError(err);
+      }
+
+      if (typeof this.props.onWordMinCount === 'function') {
+        let minutes = wordCount / (opts.wordsPerMinute || 200)
+        let formatted = Math.ceil(minutes.toFixed(2))
+
+        this.props.onWordMinCount(formatted);
       }
 
       if (this.mounted) {
@@ -153,6 +160,7 @@ HtmlView.propTypes = {
   style: viewPropTypes.style,
   stylesheet: PropTypes.object,
   TextComponent: PropTypes.func,
+  onWordMinCount: PropTypes.func,
   textComponentProps: PropTypes.object,
   value: PropTypes.string,
 };
@@ -162,6 +170,7 @@ HtmlView.defaultProps = {
   onLinkPress: url => Linking.openURL(url),
   onLinkLongPress: null,
   onError: console.error.bind(console),
+  onWordMinCount: () => {},
   RootComponent: element => <View {...element} />, // eslint-disable-line react/display-name
 };
 
