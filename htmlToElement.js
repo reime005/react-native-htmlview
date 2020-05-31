@@ -59,7 +59,8 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
 
     return dom.map((node, index, list) => {
       if (typeof node.data === 'string') {
-        const words = node.data.split('').filter(w => /\w/.test(w));
+        // filter words that are readable (not something like ".")
+        const words = node.data.split(' ').filter(w => /\w/.test(w) && w.length > 1);
         wordCount += words.length;
       }
 
